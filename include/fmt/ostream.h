@@ -162,6 +162,8 @@ void println(std::ostream& os, format_string<T...> fmt, T&&... args) {
              fmt::format(fmt, std::forward<T>(args)...));
 }
 
+FMT_EXPORT void println(std::ostream& os) { fmt::print(os, FMT_STRING("\n")); }
+
 FMT_END_NAMESPACE
 
 #endif  // FMT_OSTREAM_H_
