@@ -194,11 +194,6 @@ TEST(ranges_test, format_tuple) {
   EXPECT_TRUE((fmt::is_formattable<std::tuple<int, float>>::value));
 }
 
-TEST(ranges_test, format_tuple_rvalue) {
-  EXPECT_EQ(fmt::format("{}", std::make_tuple(42, 1.5f, "this is tuple", 'i')),
-            "(42, 1.5, \"this is tuple\", 'i')");
-}
-
 struct not_default_formattable {};
 struct bad_format {};
 
@@ -683,6 +678,24 @@ auto format_as(const tieable& t) -> std::tuple<int, double> {
 
 TEST(ranges_test, format_as_tie) {
   EXPECT_EQ(fmt::format("{}", tieable()), "(3, 0.42)");
+}
+
+struct tuple_joinable {
+  int a = 3;
+  double b = 0.42;
+};
+auto format_as(const tuple_joinable& t)
+    -> decltype(fmt::join(std::forward_as_tuple(t.a, t.b), ", ")) {
+  return fmt::join(std::forward_as_tuple(t.a, t.b), ", ");
+}
+TEST(ranges_test, format_as_tuple_join_rvalue) {
+  {
+    tuple_joinable t;
+    EXPECT_EQ(fmt::format("{}", t), "3, 0.42");
+  }
+  {
+    EXPECT_EQ(fmt::format("{}", tuple_joinable{}), "3, 0.42");
+  }
 }
 
 struct lvalue_qualified_begin_end {
